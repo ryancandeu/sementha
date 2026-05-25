@@ -16,10 +16,23 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.ryancandeu.Sementha"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-font"
+    ],
+    "notification": {
+      "icon": "./assets/notification-icon.png",
+      "color": "#32B768"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "2a83f4e1-243e-46a9-9450-bc4f0b9f1eb0"
+      }
     }
   }
 }
