@@ -1,3 +1,4 @@
+// src/screens/Tasks/index.tsx
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -68,14 +69,13 @@ export function Tasks() {
 
   return (
     <View style={currentStyles.container}>
+      {/* CABEÇALHO LIMPO COM SETA DE VOLTAR */}
       <View style={currentStyles.headerRow}>
-        <TouchableOpacity style={currentStyles.circleButton} onPress={() => navigation.navigate('Home')}>
-          <Feather name="home" size={20} color={theme.colors.primary} />
+        <TouchableOpacity style={currentStyles.circleButton} onPress={() => navigation.goBack()}>
+          <Feather name="arrow-left" size={20} color={theme.colors.primary} />
         </TouchableOpacity>
         <LogoIcon size={50} />
-        <TouchableOpacity style={currentStyles.circleButton} onPress={() => navigation.navigate('Profile')}>
-          <Feather name="user" size={20} color={theme.colors.primary} />
-        </TouchableOpacity>
+        <View style={{ width: 44 }} />
       </View>
 
       <ScrollView contentContainerStyle={currentStyles.scrollContainer} showsVerticalScrollIndicator={false}>

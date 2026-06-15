@@ -130,10 +130,10 @@ export function Profile() {
 
   return (
     <View style={currentStyles.container}>
-      
+      {/* CABEÇALHO LIMPO COM SETA DE VOLTAR */}
       <View style={currentStyles.headerRow}>
-        <TouchableOpacity style={currentStyles.circleButton} onPress={() => navigation.navigate('Home')}>
-          <Feather name="home" size={20} color={theme.colors.primary} />
+        <TouchableOpacity style={currentStyles.circleButton} onPress={() => navigation.goBack()}>
+          <Feather name="arrow-left" size={20} color={theme.colors.primary} />
         </TouchableOpacity>
         
         <LogoIcon size={50} />
@@ -148,7 +148,6 @@ export function Profile() {
           <Text style={currentStyles.greetingSubtitle}>Gerencie sua conta e configurações</Text>
         </View>
 
-        {/* CONTROLE DE MODO ESCURO */}
         <View style={currentStyles.section}>
           <Text style={currentStyles.sectionTitle}>Aparência</Text>
           <View style={currentStyles.switchRow}>

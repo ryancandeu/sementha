@@ -1,3 +1,4 @@
+// src/screens/EditPlant/index.tsx
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, Alert, ActivityIndicator, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -88,6 +89,7 @@ export function EditPlant() {
 
   return (
     <KeyboardAvoidingView style={currentStyles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      {/* CABEÇALHO LIMPO COM SETA DE VOLTAR */}
       <View style={currentStyles.headerRow}>
         <TouchableOpacity style={currentStyles.circleButton} onPress={() => navigation.goBack()}>
           <Feather name="arrow-left" size={20} color={theme.colors.primary} />

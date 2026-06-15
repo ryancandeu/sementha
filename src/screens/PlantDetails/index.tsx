@@ -1,3 +1,4 @@
+// src/screens/PlantDetails/index.tsx
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, Alert, Image, TouchableOpacity } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -7,14 +8,14 @@ import { Feather } from '@expo/vector-icons';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 
-import { useTheme } from '../../contexts/ThemeContext'; 
+import { useTheme } from '../../contexts/ThemeContext';
 import { LogoIcon } from '../../components/LogoIcon';
 import { Button } from '../../components/Button';
 import { PlantProps } from '../../types';
 
 export function PlantDetails() {
-  const { theme } = useTheme(); 
-  const currentStyles = styles(theme); 
+  const { theme } = useTheme();
+  const currentStyles = styles(theme);
 
   const navigation = useNavigation<any>();
   const route = useRoute();
@@ -46,18 +47,18 @@ export function PlantDetails() {
 
   useEffect(() => { fetchPlantData(); }, [plantId]);
 
+  // AÇÃO SILENCIOSA: Sem interrupção na tela
   async function handleAction(type: 'water' | 'fertilizer' | 'substrate') {
     if (!plant || !plantId) return;
     const actionData = {
-      water: { label: 'Rega', field: 'lastWatered' },
-      fertilizer: { label: 'Adubagem', field: 'lastFertilized' },
-      substrate: { label: 'Troca de Substrato', field: 'lastSubstrate' }
+      water: { field: 'lastWatered' },
+      fertilizer: { field: 'lastFertilized' },
+      substrate: { field: 'lastSubstrate' }
     };
     try {
       const docRef = doc(db, 'plants', plantId);
       await updateDoc(docRef, { [actionData[type].field]: Date.now() });
-      fetchPlantData();
-      Alert.alert('Sucesso', `${actionData[type].label} registrada com sucesso!`);
+      fetchPlantData(); // Atualiza os dados instantaneamente na tela
     } catch (error) {
       Alert.alert('Erro', 'Não foi possível registrar a ação.');
     }
@@ -67,12 +68,25 @@ export function PlantDetails() {
     if (!plantId) return;
     Alert.alert('Excluir Planta', `Tem certeza que deseja excluir ${plant?.name}?`, [
       { text: 'Não', style: 'cancel' },
-      { text: 'Sim, excluir', onPress: async () => {
+      { text: 'Sim, excluir', style: 'destructive', onPress: async () => {
           try { await deleteDoc(doc(db, 'plants', plantId)); navigation.navigate('MyPlants'); } 
           catch (error) { Alert.alert('Erro', 'Não foi possível excluir a planta.'); }
         }
       }
     ]);
+  }
+
+  // MENU INFERIOR: Organiza opções secundárias a pedido do professor
+  function handleOpenMenu() {
+    Alert.alert(
+      "Opções da Planta",
+      "O que você deseja fazer?",
+      [
+        { text: "Editar Dados", onPress: () => navigation.navigate('EditPlant', { plantId }) },
+        { text: "Excluir Planta", style: "destructive", onPress: handleDelete },
+        { text: "Cancelar", style: "cancel" }
+      ]
+    );
   }
 
   function formatDate(timestamp: number) {
@@ -134,20 +148,24 @@ export function PlantDetails() {
       <View style={currentStyles.loadingContainer}>
         <LogoIcon size={80} />
         <Text style={currentStyles.loadingText}>Planta indisponível.</Text>
-        <Button title="Voltar para a Lista" onPress={() => navigation.navigate('MyPlants')} style={{ marginTop: theme.spacing.md, paddingHorizontal: 20 }} />
+        <Button title="Voltar para a Lista" onPress={() => navigation.goBack()} style={{ marginTop: theme.spacing.md, paddingHorizontal: 20 }} />
       </View>
     );
   }
 
   return (
     <View style={currentStyles.container}>
+      
+      {/* HEADER LIMPO: Apenas voltar, Logo e Menu de Opções */}
       <View style={currentStyles.headerRow}>
-        <TouchableOpacity style={currentStyles.circleButton} onPress={() => navigation.navigate('Home')}>
-          <Feather name="home" size={20} color={theme.colors.primary} />
+        <TouchableOpacity style={currentStyles.circleButton} onPress={() => navigation.goBack()}>
+          <Feather name="arrow-left" size={20} color={theme.colors.text} />
         </TouchableOpacity>
+        
         <LogoIcon size={50} />
-        <TouchableOpacity style={currentStyles.circleButton} onPress={() => navigation.navigate('Profile')}>
-          <Feather name="user" size={20} color={theme.colors.primary} />
+        
+        <TouchableOpacity style={currentStyles.circleButton} onPress={handleOpenMenu}>
+          <Feather name="more-vertical" size={20} color={theme.colors.text} />
         </TouchableOpacity>
       </View>
 
@@ -158,21 +176,22 @@ export function PlantDetails() {
         </View>
 
         {plant.imageUrl ? (
-          <Image source={{ uri: plant.imageUrl }} style={currentStyles.image} resizeMode="cover" />
+          <Image source={{ uri: plant.imageUrl }} style={currentStyles.image} resizeMode="cover" fadeDuration={0} />
         ) : (
           <View style={currentStyles.imagePlaceholder}>
             <Feather name="image" size={40} color={theme.colors.textSecondary} />
           </View>
         )}
 
+        {/* BOTÕES DE AÇÃO: Destaque visual total com cor sólida e texto branco */}
         <View style={currentStyles.actionRow}>
-          <TouchableOpacity style={currentStyles.actionButton} onPress={() => handleAction('water')}>
+          <TouchableOpacity style={currentStyles.actionButton} onPress={() => handleAction('water')} activeOpacity={0.7}>
             <Text style={currentStyles.actionIcon}>💧</Text><Text style={currentStyles.actionLabel}>Regar</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={currentStyles.actionButton} onPress={() => handleAction('fertilizer')}>
+          <TouchableOpacity style={currentStyles.actionButton} onPress={() => handleAction('fertilizer')} activeOpacity={0.7}>
             <Text style={currentStyles.actionIcon}>🌱</Text><Text style={currentStyles.actionLabel}>Adubar</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={currentStyles.actionButton} onPress={() => handleAction('substrate')}>
+          <TouchableOpacity style={currentStyles.actionButton} onPress={() => handleAction('substrate')} activeOpacity={0.7}>
             <Text style={currentStyles.actionIcon}>🪴</Text><Text style={currentStyles.actionLabel}>Substrato</Text>
           </TouchableOpacity>
         </View>
@@ -198,14 +217,7 @@ export function PlantDetails() {
         )}
 
         <View style={currentStyles.footer}>
-          <Button title={isGeneratingPDF ? "Gerando Documento..." : "Exportar Ficha (PDF)"} onPress={generatePDF} style={{ backgroundColor: theme.colors.textSecondary }} />
-          <TouchableOpacity style={currentStyles.outlineButton} onPress={() => navigation.navigate('MyPlants')}>
-            <Text style={currentStyles.outlineButtonText}>Minhas Plantas</Text>
-          </TouchableOpacity>
-          <Button title="Editar Planta" onPress={() => navigation.navigate('EditPlant', { plantId })} style={currentStyles.editButton} />
-          <TouchableOpacity onPress={handleDelete} style={currentStyles.deleteButton}>
-            <Text style={currentStyles.deleteText}>Excluir Planta</Text>
-          </TouchableOpacity>
+          <Button title={isGeneratingPDF ? "Gerando Documento..." : "Exportar Ficha (PDF)"} onPress={generatePDF} />
         </View>
       </ScrollView>
     </View>
@@ -225,9 +237,12 @@ const styles = (theme: any) => StyleSheet.create({
   image: { width: 250, height: 250, borderRadius: 20, alignSelf: 'center', marginVertical: theme.spacing.lg, ...theme.shadow },
   imagePlaceholder: { width: 250, height: 250, borderRadius: 20, backgroundColor: theme.colors.inputBackground, alignSelf: 'center', marginVertical: theme.spacing.lg, alignItems: 'center', justifyContent: 'center' },
   actionRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: theme.spacing.xl },
-  actionButton: { width: '30%', backgroundColor: theme.colors.primaryLight, padding: 12, borderRadius: 16, alignItems: 'center', ...theme.shadow },
+  
+  // NOVOS ESTILOS PARA OS BOTÕES (Destaque Principal com Letra Branca)
+  actionButton: { width: '30%', backgroundColor: theme.colors.primary, padding: 12, borderRadius: 16, alignItems: 'center', ...theme.shadow },
   actionIcon: { fontSize: 24, marginBottom: 4 },
-  actionLabel: { fontFamily: theme.fonts.bold, fontSize: 12, color: theme.colors.primary },
+  actionLabel: { fontFamily: theme.fonts.bold, fontSize: 12, color: '#FFFFFF' }, // TEXTO BRANCO FORÇADO
+  
   historySection: { marginBottom: theme.spacing.xl },
   sectionTitle: { fontFamily: theme.fonts.bold, fontSize: 18, color: theme.colors.text, marginBottom: theme.spacing.md },
   historyItem: { paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: theme.colors.inputBackground },
@@ -235,10 +250,5 @@ const styles = (theme: any) => StyleSheet.create({
   emptyHistory: { fontFamily: theme.fonts.regular, fontSize: 14, color: theme.colors.textSecondary, fontStyle: 'italic' },
   notesContainer: { marginBottom: theme.spacing.xl },
   notesText: { fontFamily: theme.fonts.regular, fontSize: 14, color: theme.colors.textSecondary, lineHeight: 20 },
-  footer: { gap: theme.spacing.sm, marginTop: theme.spacing.md },
-  outlineButton: { backgroundColor: 'transparent', borderWidth: 1, borderColor: theme.colors.primary, padding: 16, borderRadius: theme.shape.buttonRadius, alignItems: 'center' },
-  outlineButtonText: { color: theme.colors.primary, fontFamily: theme.fonts.bold, fontSize: 16 },
-  editButton: { marginTop: 0 },
-  deleteButton: { padding: 16, alignItems: 'center' },
-  deleteText: { color: theme.colors.danger, fontFamily: theme.fonts.medium, textDecorationLine: 'underline' }
+  footer: { marginTop: theme.spacing.xs }
 });

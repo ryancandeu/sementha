@@ -1,3 +1,4 @@
+// src/services/notifications.ts
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
@@ -13,38 +14,43 @@ Notifications.setNotificationHandler({
 });
 
 export async function registerForPushNotificationsAsync() {
-  if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync('default', {
-      name: 'default',
-      importance: Notifications.AndroidImportance.MAX,
-      vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#32B768',
-    });
-  }
-
-  if (Device.isDevice) {
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-    
-    if (existingStatus !== 'granted') {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
+  try {
+    if (Platform.OS === 'android') {
+      await Notifications.setNotificationChannelAsync('default', {
+        name: 'default',
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#32B768',
+      });
     }
-    
-    if (finalStatus !== 'granted') {
-      return false;
-    }
-  }
 
-  return true;
+    if (Device.isDevice) {
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      
+      if (finalStatus !== 'granted') {
+        return false;
+      }
+    }
+
+    return true;
+  } catch (error) {
+    console.log("Aviso: Permissões de notificação bloqueadas pelo Expo Go. Teste no APK final.");
+    return false;
+  }
 }
 
 export async function schedulePlantNotifications(taskCount: number) {
-  await Notifications.cancelAllScheduledNotificationsAsync();
-
   if (taskCount === 0) return;
 
   try {
+    await Notifications.cancelAllScheduledNotificationsAsync();
+
     const savedTime = await AsyncStorage.getItem('@sementha:notifTime') || '09:00';
     const [hourStr, minuteStr] = savedTime.split(':');
     const hour = parseInt(hourStr, 10);
@@ -108,6 +114,6 @@ export async function schedulePlantNotifications(taskCount: number) {
     }
 
   } catch (error) {
-    console.log("Erro ao agendar notificações: ", error);
+    console.log("Aviso: Agendamento de notificações ignorado pelo Expo Go.");
   }
 }

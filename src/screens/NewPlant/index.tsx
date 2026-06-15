@@ -1,10 +1,13 @@
+// src/screens/NewPlant/index.tsx
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Alert, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { collection, addDoc } from 'firebase/firestore';
 import { db, auth } from '../../services/firebase';
+import { Feather } from '@expo/vector-icons';
 
 import { useTheme } from '../../contexts/ThemeContext'; 
+import { LogoIcon } from '../../components/LogoIcon';
 import { Button } from '../../components/Button';
 import { Input } from '../../components/Input';
 import { ImagePickerButton } from '../../components/ImagePickerButton';
@@ -69,6 +72,16 @@ export function NewPlant() {
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: theme.colors.background }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={currentStyles.scrollContainer} showsVerticalScrollIndicator={false}>
         <View style={currentStyles.container}>
+          
+          {/* CABEÇALHO LIMPO COM SETA DE VOLTAR ADICIONADO AQUI */}
+          <View style={currentStyles.headerRow}>
+            <TouchableOpacity style={currentStyles.circleButton} onPress={() => navigation.goBack()}>
+              <Feather name="arrow-left" size={20} color={theme.colors.primary} />
+            </TouchableOpacity>
+            <LogoIcon size={50} />
+            <View style={{ width: 44 }} />
+          </View>
+
           <View style={currentStyles.header}>
             <Text style={currentStyles.title}>Nova Planta</Text>
             <Text style={currentStyles.subtitle}>Preencha os dados com base na espécie</Text>
@@ -96,7 +109,9 @@ export function NewPlant() {
 
 const styles = (theme: any) => StyleSheet.create({
   scrollContainer: { flexGrow: 1 },
-  container: { flex: 1, backgroundColor: theme.colors.background, padding: theme.spacing.lg, paddingTop: 60, paddingBottom: 40 },
+  container: { flex: 1, backgroundColor: theme.colors.background, padding: theme.spacing.lg, paddingTop: 50, paddingBottom: 40 },
+  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: theme.spacing.xl },
+  circleButton: { width: 44, height: 44, borderRadius: 22, backgroundColor: theme.colors.inputBackground, alignItems: 'center', justifyContent: 'center', ...theme.shadow },
   header: { alignItems: 'center', marginBottom: theme.spacing.xl },
   title: { fontFamily: theme.fonts.bold, fontSize: 28, color: theme.colors.primary },
   subtitle: { fontFamily: theme.fonts.regular, fontSize: 14, color: theme.colors.textSecondary, marginTop: -4 },
